@@ -1,14 +1,22 @@
 package fa.nfa;
 
+import java.util.HashMap;
+
 import fa.State;
+
+/**
+ * Non- deterministic finite automata object. 
+ * @author Luke Ptomey
+ * @author Kyle Epperson
+ */
 
 public class NFAState extends State {
     
 
     private HashMap<Character,NFAState> delta;//delta
 	private boolean isFinal;//remembers its type
-    private NFAState previousState;
-    private int level;
+    private NFAState previousState; //previous state that used transition to reach this current state
+    private int level; //minimum number of transitions from start state not including empty transitons
 	
 	/**
 	 * Default constructor
@@ -17,6 +25,7 @@ public class NFAState extends State {
 	public NFAState(String name){
 		initDefault(name);
 		isFinal = false;
+		this.level=0;
 	}
 	
 	/**
@@ -27,6 +36,7 @@ public class NFAState extends State {
 	public NFAState(String name, boolean isFinal){
 		initDefault(name);
 		this.isFinal = isFinal;
+		this.level=0;
 	}
 	
 	private void initDefault(String name ){
@@ -67,8 +77,35 @@ public class NFAState extends State {
 		return delta.get(symb);
 	}
 	
-    public NFAState setPreviousState(NFAState previousState){
+	/**
+	 * Sets previous state
+	 * @param previousState
+	 */
+    public void setPreviousState(NFAState previousState){
         this.previousState = previousState;
-    }
+	}
+	
+	/**
+	 * Appends level of current state
+	 */
+	public void addLevel(){
+		this.level++;
+	}
+
+	/**
+	 * Gets current level of node
+	 * @return current level
+	 */
+	public int getLevel(){
+		return this.level;
+	}
+
+	/**
+	 * Gets previous state
+	 * @return previous state
+	 */
+	public NFAState getPreviouState(){
+		return this.previousState;
+	}
 
 }

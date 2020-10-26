@@ -5,7 +5,9 @@ import java.util.HashMap;
 import fa.State;
 
 /**
- * Non- deterministic finite automata object. 
+ * Non- deterministic finite automata object. Includes hash map containing transitions, getters
+ * and setters for level and previous states. Each NFAState also incudes final state instance
+ * variable.
  * @author Luke Ptomey
  * @author Kyle Epperson
  */

@@ -128,6 +128,10 @@ public class NFAState extends State {
 		return isStart;
 	}
 
+	/**
+	 * Sets state to final state
+	 * @param value true if set finalstate, false otherwise
+	 */
 	public void setFinal(boolean value){
 		isFinal = value;
 	}

@@ -18,7 +18,7 @@ import fa.dfa.DFA;
 public class NFA implements NFAInterface {
     private LinkedHashSet<NFAState> Q;
     private HashSet<Character> alphabet;
-    private LinkedHashSet<String> previousTranstion;
+    private LinkedHashSet<String> origTranstion;
     
     /**
      * NFA constructor
@@ -26,7 +26,7 @@ public class NFA implements NFAInterface {
     public NFA(){
         Q = new LinkedHashSet<NFAState>();
         alphabet = new HashSet<Character>();
-        previousTranstion = new LinkedHashSet<String>();
+        origTranstion = new LinkedHashSet<String>();
 
     }
 
@@ -65,7 +65,21 @@ public class NFA implements NFAInterface {
 
     @Override
     public void addTransition(String fromState, char onSymb, String toState) {
-        // TODO Auto-generated method stub
+        // Add to alphabet if new symbol. Add transition to list.
+        alphabet.add(onSymb);
+        origTranstion.add(fromState + onSymb + toState);
+
+        Iterator<NFAState> it = Q.iterator();
+
+        while(it.hasNext()){
+            NFAState temp = it.next();
+             if(temp.getName().equals(fromState)){
+                 //fromState creates toState and adds it to its list of states fromstate can go to
+                 NFAState goState = new NFAState(toState);
+                 temp.addTransition(onSymb, goState);
+                 break;
+             }
+        }
 
     }
 

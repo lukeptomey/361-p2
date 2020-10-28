@@ -15,7 +15,7 @@ import fa.State;
 public class NFAState extends State {
     
 
-    private HashMap<Character,NFAState> delta;//delta
+    private HashMap<Character,String> delta;//delta
 	private boolean isStart, isFinal;//remembers its type
     private NFAState previousState; //previous state that used transition to reach this current state
     private int level; //minimum number of transitions from start state not including empty transitons
@@ -45,7 +45,7 @@ public class NFAState extends State {
 	
 	private void initDefault(String name ){
 		this.name = name;
-		delta = new HashMap<Character, NFAState>();
+		delta = new HashMap<Character, String>();
 	}
 	
 	/**
@@ -62,7 +62,7 @@ public class NFAState extends State {
 	 * @param onSymb the alphabet symbol
 	 * @param toState to DFA state
 	 */
-	public void addTransition(char onSymb, NFAState toState){
+	public void addTransition(char onSymb, String toState){
 		delta.put(onSymb, toState);
 	}
 	
@@ -72,14 +72,14 @@ public class NFAState extends State {
 	 * @param symb - the alphabet symbol
 	 * @return the new state 
 	 */
-	public NFAState getTo(char symb){
-		NFAState ret = delta.get(symb);
-		if(ret == null){
-			 System.err.println("ERROR: NFAState.getTo(char symb) returns null on " + symb + " from " + name);
-			 System.exit(2);
-			}
-		return delta.get(symb);
-	}
+	// public NFAState getTo(char symb){
+	// 	NFAState ret = delta.get(symb);
+	// 	if(ret == null){
+	// 		 System.err.println("ERROR: NFAState.getTo(char symb) returns null on " + symb + " from " + name);
+	// 		 System.exit(2);
+	// 		}
+	// 	return delta.get(symb);
+	// }
 	
 	/**
 	 * Sets previous state

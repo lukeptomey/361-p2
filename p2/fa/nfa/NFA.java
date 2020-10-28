@@ -75,8 +75,8 @@ public class NFA implements NFAInterface {
             NFAState temp = it.next();
              if(temp.getName().equals(fromState)){
                  //fromState creates toState and adds it to its list of states fromstate can go to
-                 NFAState goState = new NFAState(toState);
-                 temp.addTransition(onSymb, goState);
+                // NFAState goState = new NFAState(toState);
+                 temp.addTransition(onSymb, toState);
                  break;
              }
         }
@@ -85,26 +85,53 @@ public class NFA implements NFAInterface {
 
     @Override
     public Set<? extends State> getStates() {
-        // TODO Auto-generated method stub
-        return null;
+        LinkedHashSet<NFAState> states = new LinkedHashSet<NFAState>();
+
+        Iterator<NFAState> it = Q.iterator();
+
+        while(it.hasNext()){
+            NFAState insert =it.next();
+            states.add(insert);
+        }
+        return states;
     }
 
     @Override
     public Set<? extends State> getFinalStates() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+            LinkedHashSet<NFAState> finalStates = new LinkedHashSet<NFAState>();
+    
+            Iterator<NFAState> it = Q.iterator();
+    
+            while(it.hasNext()){
+                NFAState temp = it.next();
+    
+                if(temp.isFinal() == true){
+                    finalStates.add(temp);
+                }
+            }
+            return finalStates;
+        }
+    
 
     @Override
     public State getStartState() {
-        // TODO Auto-generated method stub
+        NFAState startState;
+        Iterator<NFAState> it = Q.iterator();
+
+        while(it.hasNext()){
+            NFAState temp = it.next();
+
+            if(temp.isStartState() == true){
+               startState=temp;
+               return startState;
+            }
+        }
         return null;
     }
 
     @Override
     public Set<Character> getABC() {
-        // TODO Auto-generated method stub
-        return null;
+       return alphabet;
     }
 
     @Override

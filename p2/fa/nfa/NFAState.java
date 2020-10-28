@@ -109,7 +109,7 @@ public class NFAState extends State {
 	 * @return previous state
 	 */
 	public NFAState getPreviouState(){
-		return this.previousState;
+		return previousState;
 	}
 
 	/**

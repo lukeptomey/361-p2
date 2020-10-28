@@ -1,6 +1,7 @@
 package fa.nfa;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -31,19 +32,34 @@ public class NFA implements NFAInterface {
 
     @Override
     public void addStartState(String name) {
-        // TODO Auto-generated method stub
+        NFAState state = new NFAState(name);
+        state.setStartState(true);
 
-    }
+        // Goes into if state already exists in Q.
+        if(!(Q.add(state))){
+            Iterator<NFAState> it = Q.iterator();
+            while(it.hasNext()) {
+                state = it.next();
+                if(state.getName().equals(name)) {
+                    state.setStartState(true);
+                }
+            }
+        }  
+     }
+    
 
     @Override
     public void addState(String name) {
-        // TODO Auto-generated method stub
+        NFAState state = new NFAState(name);
+        Q.add(state);
 
     }
 
     @Override
     public void addFinalState(String name) {
-        // TODO Auto-generated method stub
+        NFAState state = new NFAState(name);
+        state.setFinal(true);
+        Q.add(state);
 
     }
 

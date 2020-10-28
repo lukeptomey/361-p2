@@ -16,7 +16,7 @@ public class NFAState extends State {
     
 
     private HashMap<Character,NFAState> delta;//delta
-	private boolean isFinal;//remembers its type
+	private boolean isStart, isFinal;//remembers its type
     private NFAState previousState; //previous state that used transition to reach this current state
     private int level; //minimum number of transitions from start state not including empty transitons
 	
@@ -26,7 +26,7 @@ public class NFAState extends State {
 	 */
 	public NFAState(String name){
 		initDefault(name);
-		isFinal = false;
+		isFinal = isStart = false;
 		this.level=0;
 	}
 	
@@ -35,10 +35,12 @@ public class NFAState extends State {
 	 * @param name the state name
 	 * @param isFinal the type of state: true - final, false - nonfinal.
 	 */
-	public NFAState(String name, boolean isFinal){
+	public NFAState(String name, boolean isStart, boolean isFinal){
 		initDefault(name);
 		this.isFinal = isFinal;
+		this.isStart = isStart;
 		this.level=0;
+
 	}
 	
 	private void initDefault(String name ){
@@ -83,15 +85,15 @@ public class NFAState extends State {
 	 * Sets previous state
 	 * @param previousState
 	 */
-    public void setPreviousState(NFAState previousState){
-        this.previousState = previousState;
+    public void setPreviousState(NFAState oldState){
+        previousState = oldState;
 	}
 	
 	/**
 	 * Appends level of current state
 	 */
 	public void addLevel(){
-		this.level++;
+		level++;
 	}
 
 	/**
@@ -99,7 +101,7 @@ public class NFAState extends State {
 	 * @return current level
 	 */
 	public int getLevel(){
-		return this.level;
+		return level;
 	}
 
 	/**
@@ -108,6 +110,26 @@ public class NFAState extends State {
 	 */
 	public NFAState getPreviouState(){
 		return this.previousState;
+	}
+
+	/**
+	 * Sets start state
+	 * @param value Dictiates whether state is start state
+	 */
+	public void setStartState(boolean value){
+		isStart=value;
+	}
+
+	/**
+	 * Checks whether state is start state
+	 * @return true if startstate, false otherwise
+	 */
+	public boolean isStartState(){
+		return isStart;
+	}
+
+	public void setFinal(boolean value){
+		isFinal = value;
 	}
 
 }

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import fa.State;
 import fa.dfa.DFA;
+import fa.dfa.DFAState;
 
 /**
  * Non-deterministic finite automata object. Includes add and get methods for states and 
@@ -161,6 +162,38 @@ public class NFA implements NFAInterface {
         //     visited = new ArrayList<>();
         // }
 
+
+        //Create DFA states using closure of each NFA state
+
+
+        DFA conversionDFA = new DFA();
+
+        Iterator<NFAState> it = Q.iterator();
+        while(it.hasNext()) {
+            // Grab state from Q
+           NFAState grabState = it.next();
+            // Find closure of that state
+            Set<NFAState> closeStates = eClosure(grabState);
+
+            Iterator<NFAState> it2 = closeStates.iterator();
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            while(it2.hasNext()) {
+                NFAState temp = it2.next();
+                sb.append(temp.getName());
+                if(it2.hasNext()){
+                sb.append(", ");
+                }
+            }
+            sb.append("]");
+            //DEBUG
+            System.out.println(sb.toString());
+
+            conversionDFA.addState(sb.toString());
+
+
+        }
+
         return null;
     }
 
@@ -172,7 +205,7 @@ public class NFA implements NFAInterface {
     @Override
     public Set<NFAState> eClosure(NFAState s) {
 
-        System.out.println("On node: " + s.getName());  // DEBUG
+        // System.out.println("On node: " + s.getName());  // DEBUG
 
         Set<NFAState> retVal = new LinkedHashSet<>();
         retVal.add(s); // Always add itself
@@ -193,7 +226,7 @@ public class NFA implements NFAInterface {
                     retVal.addAll(eClosure(state)); // Appends returned set to existing set
                 }
             }
-
+            visited.clear();
             return retVal;
         }
 

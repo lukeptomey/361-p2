@@ -177,4 +177,12 @@ public class NFAState extends State {
 		isFinal = value;
 	}
 
+	/**
+	 * Get name of NFA state
+	 * @return name of NFA state
+	 */
+	public String getName(){
+		return name;
+	}
+
 }

@@ -1,5 +1,6 @@
 package fa.nfa;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -16,9 +17,11 @@ import fa.dfa.DFA;
  */
 
 public class NFA implements NFAInterface {
-    private LinkedHashSet<NFAState> Q;
-    private HashSet<Character> alphabet;
-    private LinkedHashSet<String> origTranstion;
+    private LinkedHashSet<NFAState> Q;              // Set for NFA states within the NFA
+    private HashSet<Character> alphabet;            // Set of alphabet symbols for the language
+    private LinkedHashSet<String> origTranstion;    // Set of transition characters
+
+    private ArrayList<NFAState> visited;            // Used during eClosure. Indicates NFAStates that have already been visited
     
     /**
      * NFA constructor
@@ -27,7 +30,7 @@ public class NFA implements NFAInterface {
         Q = new LinkedHashSet<NFAState>();
         alphabet = new HashSet<Character>();
         origTranstion = new LinkedHashSet<String>();
-
+        visited = new ArrayList<NFAState>();
     }
 
     @Override
@@ -66,21 +69,35 @@ public class NFA implements NFAInterface {
     @Override
     public void addTransition(String fromState, char onSymb, String toState) {
         // Add to alphabet if new symbol. Add transition to list.
-        alphabet.add(onSymb);
+        // NOTE: e (empty transition) is not valid alphabet symbol
+        if(onSymb != 'e') { 
+            alphabet.add(onSymb);
+        }
         origTranstion.add(fromState + onSymb + toState);
 
         Iterator<NFAState> it = Q.iterator();
 
+        // Iterates over Q, adds transition 'onSymb' and 'toState' to state 'fromState' when found.
         while(it.hasNext()){
             NFAState temp = it.next();
-             if(temp.getName().equals(fromState)){
+                if(temp.getName().equals(fromState)){
                  //fromState creates toState and adds it to its list of states fromstate can go to
                 // NFAState goState = new NFAState(toState);
-                 temp.addTransition(onSymb, toState);
-                 break;
+
+                // Gets the NFA toState from Q and saves to ts so can be added to temp's transitions
+                NFAState ts = null;
+                for (NFAState t : Q){
+                    if(t.getName().equals(toState)){
+                        ts = t;
+                        break;
+                    }
+                }
+
+                // Updates temp's transitions with new symb and destination NFAState ts.
+                temp.addTransition(onSymb, ts);
+                break;
              }
         }
-
     }
 
     @Override
@@ -131,25 +148,65 @@ public class NFA implements NFAInterface {
 
     @Override
     public Set<Character> getABC() {
-       return alphabet;
+       return this.alphabet;
     }
 
     @Override
     public DFA getDFA() {
         // TODO Auto-generated method stub
+        
+        // DELETE ME -- DEBUG FOR TESTING eClosure(), NOT PART OF SOLUTION
+        // for(NFAState s : Q) {
+        //     eClosure(s);
+        //     visited = new ArrayList<>();
+        // }
+
         return null;
     }
 
     @Override
     public Set<NFAState> getToState(NFAState from, char onSymb) {
-        // TODO Auto-generated method stub
-        return null;
+        return from.getTo(onSymb);
     }
 
     @Override
     public Set<NFAState> eClosure(NFAState s) {
-        // TODO Auto-generated method stub
-        return null;
+
+        System.out.println("On node: " + s.getName());  // DEBUG
+
+        Set<NFAState> retVal = new LinkedHashSet<>();
+        retVal.add(s); // Always add itself
+
+        Set<NFAState> toStates = s.getEStates();    // Gets the NFAStates that can be taken reached from 'e' transitions
+
+        // Adds to visited array when seen. Stops infinate loop such as p2tc3.txt
+        addVisitedState(s);
+
+        if(toStates.isEmpty()) {    // Empty therefore just return itself
+            return retVal;
+
+        } else {    // Has e transitions therefore try them
+
+            // Goes through each node and adds its e transition
+            for (NFAState state : toStates) {
+                if(!didVisitedState(state)) {   // Checks if that NFAState has already been visted
+                    retVal.addAll(eClosure(state)); // Appends returned set to existing set
+                }
+            }
+
+            return retVal;
+        }
+
+    }
+
+    // Checks if an NFAState has already been visited during eClosure, indicated by its existance in visited list.
+    private boolean didVisitedState(NFAState s){
+        return visited.contains(s);
+    }
+
+    // Adds an NFAState to visited list
+    private void addVisitedState(NFAState s) {
+        visited.add(s);
     }
     
 }

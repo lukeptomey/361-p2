@@ -1,6 +1,8 @@
 package fa.nfa;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import fa.State;
 
@@ -15,7 +17,7 @@ import fa.State;
 public class NFAState extends State {
     
 
-    private HashMap<Character,String> delta;//delta
+    private HashMap<Character, LinkedHashSet<NFAState>> delta;//delta
 	private boolean isStart, isFinal;//remembers its type
     private NFAState previousState; //previous state that used transition to reach this current state
     private int level; //minimum number of transitions from start state not including empty transitons
@@ -45,7 +47,7 @@ public class NFAState extends State {
 	
 	private void initDefault(String name ){
 		this.name = name;
-		delta = new HashMap<Character, String>();
+		delta = new HashMap<Character, LinkedHashSet<NFAState>>();
 	}
 	
 	/**
@@ -62,8 +64,47 @@ public class NFAState extends State {
 	 * @param onSymb the alphabet symbol
 	 * @param toState to DFA state
 	 */
-	public void addTransition(char onSymb, String toState){
-		delta.put(onSymb, toState);
+	public void addTransition(char onSymb, NFAState toState){
+
+		if(!delta.containsKey(onSymb)){	// Need to add new symb and set in map
+
+			// Creates a new set for onSymb in map.
+			LinkedHashSet<NFAState> newSet = new LinkedHashSet<>();
+			newSet.add(toState);	// Adds the toState to that set
+
+			// Puts onSymb and newSet in the map
+			delta.put(onSymb, newSet);
+
+		} else {	// Symb exists in map. Append toState to set.
+			
+			delta.get(onSymb).add(toState);
+		}
+
+	}
+
+	/**
+	 * Retrieves the state that <code>this</code> transitions to
+	 * on the given symbol
+	 * @param symb - the alphabet symbol
+	 * @return The set of NFAStates that can be taken with symb
+	 */
+	public Set<NFAState> getTo(char symb){
+		LinkedHashSet<NFAState> ret = delta.get(symb);
+		if(ret == null){
+			System.err.println("ERROR: DFAState.getTo(char symb) returns null on " + symb + " from " + name);
+			System.exit(2);
+		}
+		return ret;
+	}
+
+	public Set<NFAState> getEStates(){
+
+		if(delta.containsKey('e')) {
+			return delta.get('e'); 
+		}
+
+		// Returns empty set if no transitions on symb e found (size == 0)
+		return new LinkedHashSet<>();
 	}
 	
 	/**

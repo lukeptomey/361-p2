@@ -23,6 +23,7 @@ public class NFA implements NFAInterface {
     private LinkedHashSet<String> origTranstion;    // Set of transition characters
 
     private ArrayList<NFAState> visited;            // Used during eClosure. Indicates NFAStates that have already been visited
+    private String startState;                    // Start state of NFA used for conversion to DFA
     
     /**
      * NFA constructor
@@ -38,6 +39,7 @@ public class NFA implements NFAInterface {
     public void addStartState(String name) {
         NFAState state = new NFAState(name);
         state.setStartState(true);
+        startState=name;
 
         // Goes into if state already exists in Q.
         if(!(Q.add(state))){
@@ -177,6 +179,7 @@ public class NFA implements NFAInterface {
 
             Iterator<NFAState> it2 = closeStates.iterator();
             StringBuilder sb = new StringBuilder();
+            boolean start = false;
             sb.append("[");
             while(it2.hasNext()) {
                 NFAState temp = it2.next();
@@ -186,11 +189,23 @@ public class NFA implements NFAInterface {
                 }
             }
             sb.append("]");
+
+            //Check if start state
+            if(sb.charAt(1)==startState.charAt(0)){
+                start=true;
+            }
+
+
             //DEBUG
             System.out.println(sb.toString());
 
+            //AddStartState if NFA Start State exists
+            if(start==true){
+                conversionDFA.addStartState(sb.toString());
+            }
+            else{
             conversionDFA.addState(sb.toString());
-
+            }
 
         }
 
@@ -232,12 +247,19 @@ public class NFA implements NFAInterface {
 
     }
 
-    // Checks if an NFAState has already been visited during eClosure, indicated by its existance in visited list.
+    /**
+     * Checks if an NFAState has already been visited during eClosure, indicated by its existance in visited list.
+     * @param s A NFAState
+     * @return An array of visited states by eclosure method
+     */
     private boolean didVisitedState(NFAState s){
         return visited.contains(s);
     }
 
-    // Adds an NFAState to visited list
+    /**
+     * Adds an NFAState to visited list
+     * @param s A NFA state
+     */
     private void addVisitedState(NFAState s) {
         visited.add(s);
     }

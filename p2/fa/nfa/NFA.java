@@ -180,9 +180,14 @@ public class NFA implements NFAInterface {
             Iterator<NFAState> it2 = closeStates.iterator();
             StringBuilder sb = new StringBuilder();
             boolean start = false;
+            boolean finalState = false;
             sb.append("[");
             while(it2.hasNext()) {
                 NFAState temp = it2.next();
+                //Check if end state
+                if(temp.isFinal()){
+                    finalState=true;
+                }
                 sb.append(temp.getName());
                 if(it2.hasNext()){
                 sb.append(", ");
@@ -203,6 +208,11 @@ public class NFA implements NFAInterface {
             if(start==true){
                 conversionDFA.addStartState(sb.toString());
             }
+            // AddFinalState if NFA final state exists
+            if(finalState==true){
+                conversionDFA.addFinalState(sb.toString());
+            }
+
             else{
             conversionDFA.addState(sb.toString());
             }

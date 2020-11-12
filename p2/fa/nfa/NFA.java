@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 import fa.State;
@@ -167,59 +169,77 @@ public class NFA implements NFAInterface {
 
         //Create DFA states using closure of each NFA state
 
-
+        //Create DFA
         DFA conversionDFA = new DFA();
 
-        Iterator<NFAState> it = Q.iterator();
-        while(it.hasNext()) {
-            // Grab state from Q
-           NFAState grabState = it.next();
-            // Find closure of that state
-            Set<NFAState> closeStates = eClosure(grabState);
+        //State Queue creation
+        Queue <Set<NFAState>> stateQueue = new LinkedList<Set<NFAState>>();
 
-            Iterator<NFAState> it2 = closeStates.iterator();
-            StringBuilder sb = new StringBuilder();
-            boolean start = false;
+        //BFS (Start with start state)
+        Set<NFAState> s =eClosure((NFAState)getStartState());
+
+        stateQueue.add(s);
+
+        while(stateQueue.isEmpty()==false){
+            Set<NFAState> grabbedState = stateQueue.remove();
             boolean finalState = false;
-            sb.append("[");
-            while(it2.hasNext()) {
-                NFAState temp = it2.next();
-                //Check if end state
-                if(temp.isFinal()){
-                    finalState=true;
-                }
-                sb.append(temp.getName());
-                if(it2.hasNext()){
-                sb.append(", ");
-                }
-            }
-            sb.append("]");
 
-            //Check if start state
-            if(sb.charAt(1)==startState.charAt(0)){
-                start=true;
+            for(NFAState ecloseState : grabbedState){
+                if(ecloseState.isFinal()){
+                     finalState=true;
+                 }
             }
 
-
-            //DEBUG
-            System.out.println(sb.toString());
-
-            //AddStartState if NFA Start State exists
-            if(start==true){
+        //@TODO check if .getStartState returns null if there is no start state
+        //If start but not final
+            if(conversionDFA.getStartState() == null && !finalState){
+            
+                StringBuilder sb = new StringBuilder();
+                sb.append("[");
+                int count = 0;
+                int setSize = grabbedState.size(); 
+                for(NFAState temp :grabbedState) {
+                    sb.append(temp.getName());
+                    if(!(count==setSize-1) ){
+                    count++;
+                    sb.append(", ");
+                    }
+                }
+                sb.append("]");
                 conversionDFA.addStartState(sb.toString());
             }
-            // AddFinalState if NFA final state exists
-            if(finalState==true){
+
+            //If start and final state
+            else if(conversionDFA.getStartState() == null && finalState){
+                StringBuilder sb = new StringBuilder();
+                sb.append("[");
+                int count = 0;
+                int setSize = grabbedState.size(); 
+                for(NFAState temp :grabbedState) {
+                    sb.append(temp.getName());
+                    if(!(count==setSize-1) ){
+                    count++;
+                    sb.append(", ");
+                    }
+                }
+                sb.append("]");
                 conversionDFA.addFinalState(sb.toString());
+                conversionDFA.addStartState(sb.toString());
             }
 
-            else{
-            conversionDFA.addState(sb.toString());
-            }
+
+
+
 
         }
+        
+        System.out.println(conversionDFA.toString());
+       
 
-        return null;
+           
+        
+
+         return null;
     }
 
     @Override

@@ -25,7 +25,8 @@ public class NFA implements NFAInterface {
     private LinkedHashSet<String> origTranstion;    // Set of transition characters
 
     private ArrayList<NFAState> visited;            // Used during eClosure. Indicates NFAStates that have already been visited
-    private String startState;                    // Start state of NFA used for conversion to DFA
+    // private String startState;                    // Start state of NFA used for conversion to DFA
+    private Set<String> finalStateString = new HashSet<String>();
     
     /**
      * NFA constructor
@@ -41,7 +42,7 @@ public class NFA implements NFAInterface {
     public void addStartState(String name) {
         NFAState state = new NFAState(name);
         state.setStartState(true);
-        startState=name;
+        // startState=name;
 
         // Goes into if state already exists in Q.
         if(!(Q.add(state))){
@@ -68,7 +69,7 @@ public class NFA implements NFAInterface {
         NFAState state = new NFAState(name);
         state.setFinal(true);
         Q.add(state);
-
+        finalStateString.add(name);
     }
 
     @Override
@@ -158,17 +159,6 @@ public class NFA implements NFAInterface {
 
     @Override
     public DFA getDFA() {
-        // TODO Auto-generated method stub
-        
-        // DELETE ME -- DEBUG FOR TESTING eClosure(), NOT PART OF SOLUTION
-        // for(NFAState s : Q) {
-        //     eClosure(s);
-        //     visited = new ArrayList<>();
-        // }
-
-
-        //Create DFA states using closure of each NFA state
-
         //Create DFA
         DFA conversionDFA = new DFA();
 
@@ -176,12 +166,15 @@ public class NFA implements NFAInterface {
         Queue <Set<NFAState>> stateQueue = new LinkedList<Set<NFAState>>();
 
         //BFS (Start with start state)
-        Set<NFAState> s =eClosure((NFAState)getStartState());
+        Set<NFAState> s = eClosure((NFAState)getStartState());
+        visited.clear();
 
+        // Adds the start state (root) to the queue
         stateQueue.add(s);
 
         while(stateQueue.isEmpty()==false){
             Set<NFAState> grabbedState = stateQueue.remove();
+            // System.out.println("Checking grabbedState : " + grabbedState.toString());
             boolean finalState = false;
 
             for(NFAState ecloseState : grabbedState){
@@ -190,8 +183,8 @@ public class NFA implements NFAInterface {
                  }
             }
 
-        //@TODO check if .getStartState returns null if there is no start state
-        //If start but not final
+            //@TODO check if .getStartState returns null if there is no start state
+            //If start but not final
             if(conversionDFA.getStartState() == null && !finalState){
             
                 StringBuilder sb = new StringBuilder();
@@ -227,19 +220,104 @@ public class NFA implements NFAInterface {
                 conversionDFA.addStartState(sb.toString());
             }
 
+            // Set<NFAState> toStatesOnTransChar = new HashSet<NFAState>();
 
+            // Loop through the transitions for each NFAState within grabbedState set
+            for (Character transitionCharacter : alphabet) {
+                Set<NFAState> toStatesOnTransChar = new HashSet<NFAState>();
+                // System.out.println("Checking transition character: " + transitionCharacter);
 
+                for (NFAState state : grabbedState) {
 
+                    Set<NFAState> toStates = state.getTo(transitionCharacter); // Get the toStates from state on transition character
+                    if(toStates != null) {  // If true, transitions on that character exists
+
+                        for (NFAState toState : toStates) { 
+
+                            Set<NFAState> extendedToStates = eClosure(toState);  // Check if more nodes can be reached after transition
+                            visited.clear();
+                            toStatesOnTransChar.addAll(extendedToStates);        // Add to set of possible transitions on that character
+                        }
+                    }
+                }
+
+                // Checks to see if the state of toStatesOnTransChar exists within the DFA already
+                boolean doesStateAlreadyExistsInDFA = checkIfDFAStateExists(toStatesOnTransChar, conversionDFA);
+
+                // Build the string for state name of grabbedState
+                StringBuilder sb = new StringBuilder();
+                sb.append("[");
+                int count = 0;
+                int setSize = grabbedState.size(); 
+                for(NFAState temp :grabbedState) {
+                    sb.append(temp.getName());
+                    if(!(count==setSize-1) ){
+                    count++;
+                    sb.append(", ");
+                    }
+                }
+                sb.append("]");
+
+                // DEBUG
+                System.out.println("ToString for toStatesOnTransChar: " + toStatesOnTransChar.toString());
+
+                // if(toStatesOnTransChar.isEmpty() == true) { // Dead state
+                if(toStatesOnTransChar.toString().equals("[]")) { // Dead state
+                    if(doesStateAlreadyExistsInDFA == true) {   // Transition to dead state
+
+                        conversionDFA.addTransition(sb.toString(), transitionCharacter, toStatesOnTransChar.toString());    // Add transition to dead state from state
+                        // System.out.println("Printing toStates empty toString: " + toStatesOnTransChar.toString());
+
+                    } else {    // If needed in DFA, create a dead state
+
+                        // System.out.println("Adding empty state");
+                        conversionDFA.addState("[]"); // Add dead state to DFA
+                        stateQueue.add(toStatesOnTransChar); // Add to queue so the transition can be checked from the dead state.
+                        conversionDFA.addTransition(sb.toString(), transitionCharacter, "[]");    // Add transition to dead state from state
+                    }
+
+                } else if(doesStateAlreadyExistsInDFA == false) {   // state does not already in DFA. Add state to queue to check for transitions
+                    stateQueue.add(toStatesOnTransChar);    // Add the newly found state to the queue to be processed.
+                    boolean stateContainsFinalStateCharacter = false;
+
+                    // Loops through the states within transitions set to see if any of the names of the NFAStates contains the name of final state in NFA
+                    for(NFAState state : toStatesOnTransChar) {
+                        for(String stringIndicatingFinalState : finalStateString) {
+                            if(state.getName().contains(stringIndicatingFinalState)) {  // Checks if final state symbol is within the name of the new state
+                                stateContainsFinalStateCharacter = true;
+                                break;
+                            }
+                        }
+
+                        if(stateContainsFinalStateCharacter == true) {  // Final state is true, don't need to check anymore
+                            break;
+                        }
+                    }
+
+                    // If its a final state, add as such.
+                    if(stateContainsFinalStateCharacter == true) {  // Add state to DFA as final state
+
+                        conversionDFA.addFinalState(toStatesOnTransChar.toString());
+
+                    } else {    // Add state to DFA as normal state
+
+                        conversionDFA.addState(toStatesOnTransChar.toString());
+
+                    }
+
+                }
+
+                // Add the transition to the DFA after the necessary states have been created
+                conversionDFA.addTransition(sb.toString(), transitionCharacter, toStatesOnTransChar.toString());
+
+            }
 
         }
         
-        System.out.println(conversionDFA.toString());
-       
+        // DEBUG
+        // System.out.println(conversionDFA.toString());
 
-           
-        
-
-         return null;
+        return conversionDFA;
     }
 
     @Override
@@ -271,7 +349,7 @@ public class NFA implements NFAInterface {
                     retVal.addAll(eClosure(state)); // Appends returned set to existing set
                 }
             }
-            visited.clear();
+            visited.clear();    // Clear after eClosure
             return retVal;
         }
 
@@ -294,4 +372,21 @@ public class NFA implements NFAInterface {
         visited.add(s);
     }
     
+    /*
+     * Checks to see if the checkingStates string is already a state within the DFA.
+     * Returns true is states exists in DFA, otherwise false
+     */
+    private boolean checkIfDFAStateExists(Set<NFAState> checkingStates, DFA dfa) {
+        boolean retVal = false;
+        Set<DFAState> dfaStates = dfa.getStates();
+
+        for(DFAState dfaState : dfaStates) {
+            if(dfaState.getName().equals(checkingStates.toString())) {  // Equals because DFA does not return set
+                retVal = true;
+                break;
+            }
+        }
+
+        return retVal;
+    }
 }

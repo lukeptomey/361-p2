@@ -20,7 +20,6 @@ public class NFAState extends State {
     private HashMap<Character, LinkedHashSet<NFAState>> delta;//delta
 	private boolean isStart, isFinal;//remembers its type
     private NFAState previousState; //previous state that used transition to reach this current state
-    private int level; //minimum number of transitions from start state not including empty transitons
 	
 	/**
 	 * Default constructor
@@ -29,7 +28,6 @@ public class NFAState extends State {
 	public NFAState(String name){
 		initDefault(name);
 		isFinal = isStart = false;
-		this.level=0;
 	}
 	
 	/**
@@ -41,7 +39,6 @@ public class NFAState extends State {
 		initDefault(name);
 		this.isFinal = isFinal;
 		this.isStart = isStart;
-		this.level=0;
 
 	}
 	
@@ -86,14 +83,10 @@ public class NFAState extends State {
 	 * Retrieves the state that <code>this</code> transitions to
 	 * on the given symbol
 	 * @param symb - the alphabet symbol
-	 * @return The set of NFAStates that can be taken with symb
+	 * @return The set of NFAStates that can be taken with symb or null of no transition with that symbol
 	 */
 	public Set<NFAState> getTo(char symb){
 		LinkedHashSet<NFAState> ret = delta.get(symb);
-		if(ret == null){
-			System.err.println("ERROR: DFAState.getTo(char symb) returns null on " + symb + " from " + name);
-			System.exit(2);
-		}
 		return ret;
 	}
 
@@ -108,41 +101,11 @@ public class NFAState extends State {
 	}
 	
 	/**
-	 * Retrieves the state that <code>this</code> transitions to
-	 * on the given symbol
-	 * @param symb - the alphabet symbol
-	 * @return the new state 
-	 */
-	// public NFAState getTo(char symb){
-	// 	NFAState ret = delta.get(symb);
-	// 	if(ret == null){
-	// 		 System.err.println("ERROR: NFAState.getTo(char symb) returns null on " + symb + " from " + name);
-	// 		 System.exit(2);
-	// 		}
-	// 	return delta.get(symb);
-	// }
-	
-	/**
 	 * Sets previous state
 	 * @param previousState
 	 */
     public void setPreviousState(NFAState oldState){
         previousState = oldState;
-	}
-	
-	/**
-	 * Appends level of current state
-	 */
-	public void addLevel(){
-		level++;
-	}
-
-	/**
-	 * Gets current level of node
-	 * @return current level
-	 */
-	public int getLevel(){
-		return level;
 	}
 
 	/**
@@ -181,6 +144,7 @@ public class NFAState extends State {
 	 * Get name of NFA state
 	 * @return name of NFA state
 	 */
+	@Override
 	public String getName(){
 		return name;
 	}

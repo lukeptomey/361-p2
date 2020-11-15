@@ -23,9 +23,7 @@ public class NFA implements NFAInterface {
     private LinkedHashSet<NFAState> Q;              // Set for NFA states within the NFA
     private HashSet<Character> alphabet;            // Set of alphabet symbols for the language
     private LinkedHashSet<String> origTranstion;    // Set of transition characters
-
     private ArrayList<NFAState> visited;            // Used during eClosure. Indicates NFAStates that have already been visited
-    // private String startState;                    // Start state of NFA used for conversion to DFA
     private Set<String> finalStateString = new HashSet<String>();
     
     /**
@@ -183,7 +181,7 @@ public class NFA implements NFAInterface {
                  }
             }
 
-            //@TODO check if .getStartState returns null if there is no start state
+            //@TODO check if .getStartState returns null if there is no start state -(Luke) "Should return null"
             //If start but not final
             if(conversionDFA.getStartState() == null && !finalState){
             

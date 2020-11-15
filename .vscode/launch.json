@@ -5,18 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "java",
-            "name": "Debug (Launch) - Current File",
+            "type": "node",
             "request": "launch",
-            "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "Debug (Launch)-NFADriver<361-p2_302943a1>",
-            "request": "launch",
-            "mainClass": "fa.nfa.NFADriver",
-            "projectName": "361-p2_302943a1",
-            "args": "./p2/tests/p2tc7.txt"
+            "name": "Launch Program",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${file}"
         }
     ]
 }

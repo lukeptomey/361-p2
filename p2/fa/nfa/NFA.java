@@ -39,11 +39,23 @@ public class NFA implements NFAInterface {
     @Override
     public void addStartState(String name) {
         NFAState state = new NFAState(name);
+
+        
+
         state.setStartState(true);
         // startState=name;
+        Set<NFAState> fn = (Set<NFAState>) getFinalStates();
+
+        boolean finalAndStart = false;
+        for (NFAState f : fn) {
+            if (f.getName().equals(name)) {
+                finalAndStart = true;
+                f.setStartState(true);
+            }
+        }        
 
         // Goes into if state already exists in Q.
-        if(!(Q.add(state))){
+        if(!(Q.add(state)) && !finalAndStart){
             Iterator<NFAState> it = Q.iterator();
             while(it.hasNext()) {
                 state = it.next();
@@ -68,6 +80,7 @@ public class NFA implements NFAInterface {
         state.setFinal(true);
         Q.add(state);
         finalStateString.add(name);
+        // System.out.println(finalStateString.toString());
     }
 
     @Override
@@ -172,18 +185,32 @@ public class NFA implements NFAInterface {
 
         while(stateQueue.isEmpty()==false){
             Set<NFAState> grabbedState = stateQueue.remove();
+            // System.out.println("GrabbedState: " + grabbedState);
             // System.out.println("Checking grabbedState : " + grabbedState.toString());
             boolean finalState = false;
 
             for(NFAState ecloseState : grabbedState){
                 if(ecloseState.isFinal()){
                      finalState=true;
-                 }
+                } 
+                else {
+                    for(String fss : finalStateString) {
+                        // System.out.println("fss: " + fss);
+                        if(ecloseState.getName().contains(fss)) {
+                            finalState=true;
+                            break;
+                        }
+                    }
+
+                    if(finalState == true) {
+                        break;
+                    }
+                }
             }
 
             //@TODO check if .getStartState returns null if there is no start state -(Luke) "Should return null"
             //If start but not final
-            if(conversionDFA.getStartState() == null && !finalState){
+            if(conversionDFA.getStartState() == null && finalState == false){
             
                 StringBuilder sb = new StringBuilder();
                 sb.append("[");
@@ -197,11 +224,12 @@ public class NFA implements NFAInterface {
                     }
                 }
                 sb.append("]");
+                System.out.println("CHECKING");
                 conversionDFA.addStartState(sb.toString());
             }
 
             //If start and final state
-            else if(conversionDFA.getStartState() == null && finalState){
+            else if(conversionDFA.getStartState() == null && finalState == true){
                 StringBuilder sb = new StringBuilder();
                 sb.append("[");
                 int count = 0;
@@ -214,7 +242,10 @@ public class NFA implements NFAInterface {
                     }
                 }
                 sb.append("]");
+                // System.out.println("Adding start and final state on same state");
+                System.out.println("CHECKING");
                 conversionDFA.addFinalState(sb.toString());
+                System.out.println("CHECKING");
                 conversionDFA.addStartState(sb.toString());
             }
 
@@ -257,7 +288,7 @@ public class NFA implements NFAInterface {
                 sb.append("]");
 
                 // DEBUG
-                System.out.println("ToString for toStatesOnTransChar: " + toStatesOnTransChar.toString());
+                // System.out.println("ToString for toStatesOnTransChar: " + toStatesOnTransChar.toString());
 
                 // if(toStatesOnTransChar.isEmpty() == true) { // Dead state
                 if(toStatesOnTransChar.toString().equals("[]")) { // Dead state

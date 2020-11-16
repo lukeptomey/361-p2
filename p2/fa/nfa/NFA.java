@@ -247,6 +247,7 @@ public class NFA implements NFAInterface {
                 conversionDFA.addFinalState(sb.toString());
                 System.out.println("CHECKING");
                 conversionDFA.addStartState(sb.toString());
+                
             }
 
             // Set<NFAState> toStatesOnTransChar = new HashSet<NFAState>();

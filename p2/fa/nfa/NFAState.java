@@ -31,7 +31,7 @@ public class NFAState extends State {
 	}
 	
 	/**
-	 * Overlaoded constructor that sets the state type
+	 * Overloaded constructor that sets the state type
 	 * @param name the state name
 	 * @param isFinal the type of state: true - final, false - nonfinal.
 	 */
@@ -90,6 +90,10 @@ public class NFAState extends State {
 		return ret;
 	}
 
+	/**
+	 * Retrieves the set of NFAState's that are mapped to transition symbol 'e' on delta.
+	 * @return The set of NFAState's mapped to transition symbol 'e' or an empty set if no 'e' transitions.
+	 */
 	public Set<NFAState> getEStates(){
 
 		if(delta.containsKey('e')) {

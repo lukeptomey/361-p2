@@ -240,9 +240,9 @@ public class NFA implements NFAInterface {
                 }
                 sb.append("]");
                 // System.out.println("Adding start and final state on same state");
-                System.out.println("CHECKING");
+                // System.out.println("CHECKING");
                 conversionDFA.addFinalState(sb.toString());
-                System.out.println("CHECKING");
+                // System.out.println("CHECKING");
                 conversionDFA.addStartState(sb.toString());
                 
             }

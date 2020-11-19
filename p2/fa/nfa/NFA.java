@@ -44,6 +44,7 @@ public class NFA implements NFAInterface {
 
         state.setStartState(true);
         // startState=name;
+        @SuppressWarnings("unchecked")
         Set<NFAState> fn = (Set<NFAState>) getFinalStates();
 
         boolean finalAndStart = false;

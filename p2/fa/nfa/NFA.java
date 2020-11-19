@@ -221,7 +221,7 @@ public class NFA implements NFAInterface {
                     }
                 }
                 sb.append("]");
-                System.out.println("CHECKING");
+                //System.out.println("CHECKING");
                 conversionDFA.addStartState(sb.toString());
             }
 

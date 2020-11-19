@@ -81,7 +81,6 @@ public class NFA implements NFAInterface {
         state.setFinal(true);
         Q.add(state);
         finalStateString.add(name);
-        // System.out.println(finalStateString.toString());
     }
 
     @Override
@@ -99,8 +98,6 @@ public class NFA implements NFAInterface {
         while(it.hasNext()){
             NFAState temp = it.next();
                 if(temp.getName().equals(fromState)){
-                 //fromState creates toState and adds it to its list of states fromstate can go to
-                // NFAState goState = new NFAState(toState);
 
                 // Gets the NFA toState from Q and saves to ts so can be added to temp's transitions
                 NFAState ts = null;
@@ -209,7 +206,6 @@ public class NFA implements NFAInterface {
                 }
             }
 
-            //@TODO check if .getStartState returns null if there is no start state -(Luke) "Should return null"
             //If start but not final
             if(conversionDFA.getStartState() == null && finalState == false){
             
@@ -250,8 +246,6 @@ public class NFA implements NFAInterface {
                 conversionDFA.addStartState(sb.toString());
                 
             }
-
-            // Set<NFAState> toStatesOnTransChar = new HashSet<NFAState>();
 
             // Loop through the transitions for each NFAState within grabbedState set
             for (Character transitionCharacter : alphabet) {
@@ -297,10 +291,12 @@ public class NFA implements NFAInterface {
                     if(doesStateAlreadyExistsInDFA == true) {   // Transition to dead state
 
                         conversionDFA.addTransition(sb.toString(), transitionCharacter, toStatesOnTransChar.toString());    // Add transition to dead state from state
+                        // DEBUG
                         // System.out.println("Printing toStates empty toString: " + toStatesOnTransChar.toString());
 
                     } else {    // If needed in DFA, create a dead state
 
+                        // DEBUG
                         // System.out.println("Adding empty state");
                         conversionDFA.addState("[]"); // Add dead state to DFA
                         stateQueue.add(toStatesOnTransChar); // Add to queue so the transition can be checked from the dead state.
